@@ -1,0 +1,71 @@
+from google.colab import drive
+drive.mount('/content/drive')
+import pandas as pd
+import csv
+
+#read the excel files into dataframes
+doxData = pd.read_excel("/content/drive/MyDrive/Research/Summer 2024/Projects/PLGA/Raw_Data_from_Howard/data_dox.xlsx")
+doxPlgaData = pd.read_excel("/content/drive/MyDrive/Research/Summer 2024/Projects/PLGA/Raw_Data_from_Howard/data_dox_plga.xlsx")
+untreatedData = pd.read_excel("/content/drive/MyDrive/Research/Summer 2024/Projects/PLGA/Raw_Data_from_Howard/data_untreated.xlsx")
+
+#drop the first row from each- as it is just metadata
+doxData = doxData.drop(index=0)
+doxData.reset_index(drop=True, inplace=True)#reset the index to ensure it starts from 0 again
+
+doxPlgaData = doxPlgaData.drop(index=0)
+doxPlgaData.reset_index(drop=True, inplace=True)
+
+untreatedData = untreatedData.drop(index=0)
+untreatedData.reset_index(drop=True, inplace=True)
+
+#drop the first 3 columns
+doxData.drop(columns=["Instance", "Sample","Cell"], inplace=True)  # Drop column 'B'
+doxPlgaData.drop(columns=["Instance", "Sample","Cell"], inplace=True)  # Drop column 'B'
+untreatedData.drop(columns=["Instance", "Sample","Cell"], inplace=True)  # Drop column 'B'
+
+#change the columns from objects to numeric
+for column in doxData:
+  doxData[column] = pd.to_numeric(doxData[column])
+for column in doxPlgaData:
+  doxPlgaData[column] = pd.to_numeric(doxPlgaData[column])
+for column in untreatedData:
+  untreatedData[column] = pd.to_numeric(untreatedData[column])
+
+#splitting the data into three sets for each
+from sklearn.model_selection import train_test_split
+
+
+dropClass = ["Class"]
+ogFeatures = ogFeatures.drop(columns=dropClass)
+
+#sets for the PCA
+XtrainvalP, XtestP, ytrainvalP, ytestP = train_test_split(fullPca_df,labels,test_size=0.2, random_state = 42)
+XtrainP, XvalP, ytrainP, yvalP = train_test_split(XtrainvalP, ytrainvalP, test_size = 0.2, random_state=42)
+
+#sets for the Og-feature
+XtrainvalO, XtestO, ytrainvalO, ytestO = train_test_split(ogFeatures,labels,test_size=0.2, random_state = 42)
+XtrainO, XvalO, ytrainO, yvalO = train_test_split(XtrainvalO, ytrainvalO, test_size = 0.2, random_state=42)
+
+#sets for the full
+XtrainvalF, XtestF, ytrainvalF, ytestF = train_test_split(theData1,labels,test_size=0.2, random_state = 42)
+XtrainF, XvalF, ytrainF, yvalF = train_test_split(XtrainvalF, ytrainvalF, test_size = 0.2, random_state=42)
+
+from sklearn.model_selection import train_test_split
+
+#sets for the PCA
+XtrainvalOR, XtestOR, ytrainvalOR, ytestOR = train_test_split(ogRefined,labels,test_size=0.2, random_state = 42)
+XtrainOR, XvalOR, ytrainOR, yvalOR = train_test_split(XtrainvalOR, ytrainvalOR, test_size = 0.2, random_state=42)
+
+from sklearn.ensemble import RandomForestClassifier
+
+bestrfOR = RandomForestClassifier(max_depth=11, max_features=12, min_samples_leaf=60, min_samples_split=16, n_estimators=10, random_state=42)
+bestrfOR.fit(XtrainvalOR, ytrainvalOR) #train this model on the full training set
+
+bestrfOR.score(XtestOR, ytestOR) #train this model on the full training set
+
+from sklearn import tree
+
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(XtrainOR, ytrainOR)
+
+clf.score(XtestOR, ytestOR)
